@@ -218,6 +218,46 @@ npm run dev
 ```
 
 
+## ☁️ Deployment on Vercel
+
+This project is configured for a **two-project Vercel deployment**: the React client and the Express API run as separate serverless projects. Cookies are already set with `secure: true, sameSite: "none"` and the client uses `withCredentials: true`, so cross-domain auth works out of the box.
+
+### Prerequisites
+- A MongoDB Atlas cluster (Vercel is serverless, so use a cloud database, not localhost). Get the connection string from MongoDB Atlas.
+- Your Mailtrap token (optional, for emails).
+
+### Step 1 — Deploy the Backend (`server/`)
+1. Go to [vercel.com/new](https://vercel.com/new) and import the GitHub repo.
+2. Set the **Root Directory** to `server`.
+3. Framework Preset: leave as **Other** (Vercel auto-detects the Node.js serverless function via `server/vercel.json`).
+4. Add the following **Environment Variables**:
+   - `MONGODB_URI` — your MongoDB Atlas connection string
+   - `JWT_SECRET` — a strong secret
+   - `MAILTRAP_TOKEN` — your Mailtrap token
+   - `CLIENT_URL` — your frontend Vercel URL (from Step 2; set this after deploying the frontend, or update it later)
+   - `appName` — `EMS` (optional)
+5. Deploy. Note the backend URL, e.g. `https://ems-server.vercel.app`.
+
+### Step 2 — Deploy the Frontend (`client/`)
+1. Import the same repo as a **new, separate** Vercel project.
+2. Set the **Root Directory** to `client`.
+3. Framework Preset: **Vite** (auto-detected). Build command `npm run build`, output dir `dist`.
+4. Add the Environment Variable:
+   - `VITE_EMPLOYEE_API` — your backend URL from Step 1, e.g. `https://ems-server.vercel.app`
+5. Deploy. Note the frontend URL, e.g. `https://ems-client.vercel.app`.
+
+### Step 3 — Link the two projects
+1. Go back to the **backend** project settings → Environment Variables and set `CLIENT_URL` to your frontend URL from Step 2 (`https://ems-client.vercel.app`).
+2. Redeploy the backend so the new `CLIENT_URL` takes effect (CORS will then allow the frontend origin).
+
+### How it works
+- `server/vercel.json` routes every request to the Express app exported from `server/index.js` (`export default app`). The app only calls `app.listen()` in local dev (`!process.env.VERCEL`); on Vercel it runs as a serverless function.
+- `server/config/connectDB.js` caches the MongoDB connection across warm invocations to avoid reconnecting on every request.
+- `client/vercel.json` rewrites all non-asset routes to `index.html` for client-side routing.
+
+> Note: Vercel serverless functions have a max duration (10s on Hobby). Long-running operations like bulk payroll generation should be kept within that limit.
+
+
 ## 🚀 Future Enhancements
 
 * Analytics Dashboard: Advanced analytics for HR and management.

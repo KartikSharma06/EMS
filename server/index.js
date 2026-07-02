@@ -17,7 +17,7 @@ import InterviewInsightRouter from './routes/InterviewInsights.route.js'
 import GenerateRequestRouter from './routes/GenerateRequest.route.js'
 import CorporateCalendarRouter from './routes/CorporateCalendar.route.js'
 import BalanceRouter from './routes/Balance.route.js'
-import { ConnectDB } from './config/connectDB.js';
+import { connectDB } from './config/connectDB.js';
 import cookieParser from 'cookie-parser';
 import cors from "cors"
 
@@ -33,6 +33,16 @@ app.use(cors({
   credentials: true, // This is optional and depends on whether you’re using cookies
 }));
 // app.options('*', cors())
+
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    console.error("Database connection error:", error.message);
+    return res.status(500).json({ success: false, message: "Database connection error" });
+  }
+});
 
 app.use("/api/auth/employee", EmployeeAuthRouter) 
 
@@ -66,7 +76,11 @@ app.use("/api/v1/corporate-calendar", CorporateCalendarRouter)
 
 app.use("/api/v1/balance", BalanceRouter)
 
-app.listen(process.env.PORT, async () => {
-  await ConnectDB()
-  console.log(`Server running on http://localhost:${process.env.PORT}`)
-})
+if (!process.env.VERCEL) {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
+}
+
+export default app;
