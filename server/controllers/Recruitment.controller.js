@@ -21,7 +21,7 @@ export const HandleCreateRecruitment = async (req, res) => {
             organizationID: req.ORGID
         })
 
-        return res.json({ success: true, message: "Recruitment created successfully", data: newRecruitment })
+        return res.json({ success: true, message: "Recruitment created successfully", data: newRecruitment, type: "CreateRecruitment" })
 
     } catch (error) {
         return res.status(500).json({ success: false, message: error.message })
@@ -31,7 +31,7 @@ export const HandleCreateRecruitment = async (req, res) => {
 export const HandleAllRecruitments = async (req, res) => {
     try {
         const recruitments = await Recruitment.find({ organizationID: req.ORGID }).populate("application")
-        return res.status(200).json({ success: true, message: "All recruitments retrieved successfully", data: recruitments })
+        return res.status(200).json({ success: true, message: "All recruitments retrieved successfully", data: recruitments, type: "AllRecruitments" })
     } catch (error) {
         return res.status(500).json({ success: false, message: error.message })
     }
@@ -112,7 +112,7 @@ export const HandleDeleteRecruitment = async (req, res) => {
             return res.status(404).json({ success: false, message: "Recruitment not found" })
         }
 
-        return res.status(200).json({ success: true, message: "Recruitment deleted successfully" })
+        return res.status(200).json({ success: true, message: "Recruitment deleted successfully", type: "DeleteRecruitment" })
     } catch (error) {
         return res.status(500).json({ success: false, message: error.message })
     }

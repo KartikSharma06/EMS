@@ -261,3 +261,36 @@ export const EmployeesIDsAsyncReducer = (builder, thunk) => {
         state.error.content = action.payload
     })
 }
+
+export const GenericPageAsyncReducer = (builder, thunk) => {
+    builder
+        .addCase(thunk.pending, (state) => {
+            state.isLoading = true;
+            state.error.content = null;
+        })
+        .addCase(thunk.fulfilled, (state, action) => {
+            const t = action.payload.type;
+            if (t && t.startsWith("All")) {
+                state.isLoading = false;
+                state.error.status = false;
+                state.error.message = null;
+                state.error.content = null;
+                state.data = action.payload.data;
+                state.fetchData = false;
+            } else {
+                state.isLoading = false;
+                state.error.status = false;
+                state.error.message = null;
+                state.error.content = null;
+                state.success = action.payload.success;
+                state.fetchData = true;
+            }
+        })
+        .addCase(thunk.rejected, (state, action) => {
+            state.isLoading = false;
+            state.error.status = true;
+            state.error.message = action.payload.message;
+            state.error.content = action.payload;
+            state.fetchData = false;
+        });
+};

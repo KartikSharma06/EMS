@@ -41,7 +41,7 @@ export const SalaryChart = ({ balancedata }) => {
 
     let trendingUp = 0
 
-    if (balancedata) {
+    if (balancedata && chartData.length >= 2) {
         const difference = chartData[chartData.length - 1]["AvailableAmount"] - chartData[chartData.length - 2]["AvailableAmount"]
         trendingUp += Math.round((difference * 100) / chartData[chartData.length - 2]["AvailableAmount"])
     }
@@ -73,7 +73,7 @@ export const SalaryChart = ({ balancedata }) => {
                                 tickLine={false}
                                 axisLine={false}
                                 tickMargin={8}
-                                tickFormatter={(value) => value.slice(0, 3)}
+                                tickFormatter={(value) => value ? value.slice(0, 3) : ""}
                             />
                             <ChartTooltip
                                 cursor={false}

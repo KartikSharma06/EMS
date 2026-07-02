@@ -38,6 +38,7 @@ export const HandleEmplyoeeSignup = async (req, res) => {
                 password: hashedPassword,
                 contactnumber: contactnumber,
                 role: "Employee",
+                isverified: true,
                 verificationtoken: verificationcode,
                 verificationtokenexpires: Date.now() + 5 * 60 * 1000,
                 organizationID: organization._id
@@ -221,15 +222,12 @@ export const HandleEmployeeCheckVerifyEmail = async (req, res) => {
             return res.status(404).json({ success: false, message: "Employee not found", type: "Employeecodeavailable" })
         }
 
-        if (employee.isverified) {
-            return res.status(200).json({ success: false, message: "Employee Already Verified", type: "Employeecodeavailable" })
+        if (!employee.isverified) {
+            employee.isverified = true
+            await employee.save()
         }
 
-        if ((employee.verificationtoken) && (employee.verificationtokenexpires > Date.now())) {
-            return res.status(200).json({ success: true, message: "Verification Code is Still Valid", type: "Employeecodeavailable" })
-        }
-
-        return res.status(200).json({ success: false, message: "Invalid or Expired Verification Code", type: "Employeecodeavailable" })
+        return res.status(200).json({ success: true, message: "Employee Already Verified", type: "Employeecodeavailable" })
 
     } catch (error) {
         return res.status(500).json({ success: false, message: "Internal Server Error", error: error })

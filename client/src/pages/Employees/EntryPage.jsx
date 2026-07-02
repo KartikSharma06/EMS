@@ -1,7 +1,13 @@
 import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
+import { useEffect } from "react"
 
 export const EntryPage = () => {
+    useEffect(() => {
+        document.cookie = "HRtoken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
+        document.cookie = "EMtoken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
+    }, [])
+
     return (
         <div className="extry-page-container h-[100vh] flex justify-center items-center">
             <div className="entry-page-content">

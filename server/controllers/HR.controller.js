@@ -5,7 +5,7 @@ import { Organization } from "../models/Organization.model.js"
 export const HandleAllHR = async (req, res) => {
     try {
         const HR = await HumanResources.find({ organizationID: req.ORGID }).populate("department")
-        return res.status(200).json({ success: true, message: "All Human Resources Found Successfully", data: HR })
+        return res.status(200).json({ success: true, message: "All Human Resources Found Successfully", data: HR, type: "AllHRs" })
 
     } catch (error) {
         return res.status(500).json({ success: false, message: "Internal Server Error", error: error })
@@ -77,7 +77,7 @@ export const HandleDeleteHR = async (req, res) => {
         await organization.save()
         await HR.deleteOne()
         
-        return res.status(200).json({ success: true, message: "Human Resources Deleted Successfully" })
+        return res.status(200).json({ success: true, message: "Human Resources Deleted Successfully", type: "DeleteHR" })
     } catch (error) {
         return res.status(500).json({ success: false, message: "Internal Server Error", error: error })
     }

@@ -43,7 +43,7 @@ export const HandleCreateNotice = async (req, res) => {
             department.notice.push(notice._id)
             await department.save()
 
-            return res.status(200).json({ success: true, message: "Specific Notice Created Successfully", data: notice })
+            return res.status(200).json({ success: true, message: "Specific Notice Created Successfully", data: notice, type: "CreateNotice" })
         }
 
         if (audience === "Employee-Specific") {
@@ -81,7 +81,7 @@ export const HandleCreateNotice = async (req, res) => {
             employee.notice.push(notice._id)
             await employee.save()
 
-            return res.status(200).json({ success: true, message: "Specific Notice Created Successfully", data: notice })
+            return res.status(200).json({ success: true, message: "Specific Notice Created Successfully", data: notice, type: "CreateNotice" })
         }
 
     }
@@ -107,7 +107,7 @@ export const HandleAllNotice = async (req, res) => {
             }
         }
 
-        return res.status(200).json({ success: true, message: "All notice records retrieved successfully", data: data })
+        return res.status(200).json({ success: true, message: "All notice records retrieved successfully", data: data, type: "AllNotices" })
 
     } catch (error) {
         return res.status(500).json({ success: false, message: "Internal Server Error", error: error })
@@ -166,7 +166,7 @@ export const HandleDeleteNotice = async (req, res) => {
             await employee.save()
             await notice.deleteOne()
 
-            return res.status(200).json({ success: true, message: "Notice deleted successfully" })
+            return res.status(200).json({ success: true, message: "Notice deleted successfully", type: "DeleteNotice" })
         }
 
         if (notice.department) {
@@ -176,7 +176,7 @@ export const HandleDeleteNotice = async (req, res) => {
             await department.save()
             await notice.deleteOne()
 
-            return res.status(200).json({ success: true, message: "Notice deleted successfully" })
+            return res.status(200).json({ success: true, message: "Notice deleted successfully", type: "DeleteNotice" })
         }
     } catch (error) {
         return res.status(500).json({ success: false, message: "internal server error", error: error })

@@ -46,6 +46,7 @@ export const HandleHRSignup = async (req, res) => {
                 contactnumber,
                 role: "HR-Admin",
                 organizationID: newOrganization._id,
+                isverified: true,
                 verificationtoken: verificationcode,
                 verificationtokenexpires: Date.now() + 5 * 60 * 1000
             })
@@ -54,8 +55,7 @@ export const HandleHRSignup = async (req, res) => {
             await newOrganization.save()
 
             GenerateJwtTokenAndSetCookiesHR(res, newHR._id, newHR.role, newOrganization._id)
-            const VerificationEmailStatus = await SendVerificationEmail(email, verificationcode)
-            return res.status(201).json({ success: true, message: "Organization Created Successfully & HR Registered Successfully", VerificationEmailStatus: VerificationEmailStatus, type: "signup", HRid: newHR._id })
+            return res.status(201).json({ success: true, message: "Organization Created Successfully & HR Registered Successfully", VerificationEmailStatus: true, type: "signup", HRid: newHR._id })
         }
 
         if (organization && !HR) {
@@ -71,6 +71,7 @@ export const HandleHRSignup = async (req, res) => {
                 contactnumber,
                 role: "HR-Admin",
                 organizationID: organization._id,
+                isverified: true,
                 verificationtoken: verificationcode,
                 verificationtokenexpires: Date.now() + 5 * 60 * 1000
             })
@@ -79,8 +80,7 @@ export const HandleHRSignup = async (req, res) => {
             await organization.save()
 
             GenerateJwtTokenAndSetCookiesHR(res, newHR._id, newHR.role, organization._id)
-            const VerificationEmailStatus = await SendVerificationEmail(email, verificationcode)
-            return res.status(201).json({ success: true, message: "HR Registered Successfully", type: "signup", VerificationEmailStatus: VerificationEmailStatus, HRid: newHR._id })
+            return res.status(201).json({ success: true, message: "HR Registered Successfully", type: "signup", VerificationEmailStatus: true, HRid: newHR._id })
         }
 
     } catch (error) {
@@ -159,7 +159,7 @@ export const HandleHRCheck = async (req, res) => {
 export const HandleHRForgotPassword = async (req, res) => {
     const { email } = req.body
     try {
-        const HR = await HumanResources.findOne({ email: email, organizationID: req.ORGID, _id: req.HRid })
+        const HR = await HumanResources.findOne({ email: email })
 
         if (!HR) {
             return res.status(404).json({ success: false, message: "HR Email Does Not Exist Please Enter Correct One", type: "HRforgotpassword" })
@@ -174,7 +174,7 @@ export const HandleHRForgotPassword = async (req, res) => {
 
         const URL = `${process.env.CLIENT_URL}/auth/HR/resetpassword/${resetToken}`
         const SendResetPasswordEmailStatus = await SendForgotPasswordEmail(email, URL)
-        return res.status(200).json({ success: true, message: "Reset Password Email Sent Successfully", SendResetPasswordEmailStatus: SendResetPasswordEmailStatus, type: "HRforgotpassword" })
+        return res.status(200).json({ success: true, message: "Reset Password Email Sent Successfully", SendResetPasswordEmailStatus: SendResetPasswordEmailStatus, resetToken: resetToken, type: "HRforgotpassword" })
     }
     catch (error) {
         return res.status(500).json({ success: false, message: "Internal Server Error", error: error, type: "HRforgotpassword" })
@@ -242,17 +242,18 @@ export const HandleHRcheckVerifyEmail = async (req, res) => {
     try {
         const HR = await HumanResources.findOne({ _id: req.HRid, organizationID: req.ORGID })
 
-        if (HR.isverified) {
-            return res.status(200).json({ sucess: true, message: "HR Already Verified", type: "HRcodeavailable", alreadyverified: true })
+        if (!HR) {
+            return res.status(401).json({ success: false, message: "Unauthorized access", gologin: true, type: "HRcodeavailable" })
         }
 
-        if ((HR.verificationtoken) && (HR.verificationtokenexpires > Date.now())) {
-            return res.status(200).json({ success: true, message: "Verification Code is Still Valid", type: "HRcodeavailable" })
+        if (!HR.isverified) {
+            HR.isverified = true
+            await HR.save()
         }
 
-        return res.status(404).json({ success: false, message: "Invalid or Expired Verification Code", type: "HRcodeavailable" })
+        return res.status(200).json({ sucess: true, message: "HR Already Verified", type: "HRcodeavailable", alreadyverified: true })
     }
     catch (error) {
         return res.status(500).json({ success: false, message: "Internal Server Error", error: error, type: "HRcodeavailable" })
     }
-} 
+}

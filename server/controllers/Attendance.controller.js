@@ -47,7 +47,7 @@ export const HandleInitializeAttendance = async (req, res) => {
 export const HandleAllAttendance = async (req, res) => {
     try {
         const attendance = await Attendance.find({ organizationID: req.ORGID }).populate("employee", "firstname lastname department")
-        return res.status(200).json({ success: true, message: "All attendance records retrieved successfully", data: attendance })
+        return res.status(200).json({ success: true, message: "All attendance records retrieved successfully", data: attendance, type: "AllAttendance" })
     } catch (error) {
         return res.status(500).json({ success: false, message: "Internal Server Error", error: error })
     }
@@ -119,7 +119,7 @@ export const HandleDeleteAttendance = async (req, res) => {
         await employee.save()
         await attendance.deleteOne()
 
-        return res.status(200).json({ success: true, message: "Attendance record deleted successfully" })
+        return res.status(200).json({ success: true, message: "Attendance record deleted successfully", type: "DeleteAttendance" })
     } catch (error) {
         return res.status(500).json({ success: false, message: "Internal Server Error", error: error })
     }
