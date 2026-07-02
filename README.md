@@ -149,7 +149,7 @@ Prerequisites:
 
 ```
 
-https://github.com/Darsh-Jogi/Employee-Management-System.git
+https://github.com/KartikSharma06/EMS.git
 
 ```
 
@@ -255,8 +255,6 @@ This project is licensed under the MIT License.
 
 ## 📬 Contact
 
-For any questions or support, feel free to reach out:
 
-LinkedIn: [Darsh Jogi](https://www.linkedin.com/in/darsh-jogi-info/).
 
 Thank you for visiting the Employees Management System (EMS) project! We hope it provides valuable insights into how technology can simplify employee management.
